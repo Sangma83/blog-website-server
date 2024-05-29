@@ -85,7 +85,7 @@ async function run() {
     // Add a new comment to a blog
     app.post('/comments', async (req, res) => {
       const comment = req.body;
-      comment.blogId = {_id: new ObjectId(comment.blogId)};  // Ensure blogId is an ObjectId
+      comment.blogId = {_id: new ObjectId(comment.blogId)}; 
       comment.createdAt = new Date();  // Add timestamp
       const result = await commentsCollection.insertOne(comment);
       res.send(result);

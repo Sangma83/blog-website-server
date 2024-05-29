@@ -102,19 +102,19 @@ async function run() {
 
 
    // Fetch all recent blogs with text search
-app.get('/recentBlogSearch', async (req, res) => {
-  const searchText = req.query.search || ''; // Get search text from query parameter
-  const query = {
-    $text: {
-      $search: searchText,
-      $caseSensitive: false, // Optional: Case sensitivity
-      $diacriticSensitive: false // Optional: Diacritic sensitivity
-    }
-  };
-  const cursor = recentBlogCollection.find(query);
-  const result = await cursor.toArray();
-  res.send(result);
-});
+// app.get('/recentBlogSearch', async (req, res) => {
+//   const searchText = req.query.search || ''; // Get search text from query parameter
+//   const query = {
+//     $text: {
+//       $search: searchText,
+//       $caseSensitive: false, // Optional: Case sensitivity
+//       $diacriticSensitive: false // Optional: Diacritic sensitivity
+//     }
+//   };
+//   const cursor = recentBlogCollection.find(query);
+//   const result = await cursor.toArray();
+//   res.send(result);
+// });
 
 
     // Send a ping to confirm a successful connection

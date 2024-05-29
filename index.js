@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config()
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -27,10 +27,11 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
 
     const recentBlogCollection = client.db('BlogTravel').collection('recentBlog');
     const commentsCollection = client.db('BlogTravel').collection('comments');
+    const wishlistCollection = client.db('BlogTravel').collection('wishlist'); // Initialize the wishlist collection
 
     // Fetch all recent blogs
     app.get('/recentBlog', async (req, res) => {
@@ -47,6 +48,31 @@ async function run() {
       res.send(result);
     });
 
+    // Add a blog to the wishlist
+    app.post('/wishlist', async (req, res) => {
+      const wishlistItem = req.body;
+      const result = await wishlistCollection.insertOne(wishlistItem);
+      res.send(result);
+    });
+
+    // Fetch wishlist items for a specific user
+    app.get('/wishlist/:userId', async (req, res) => {
+      const userId = req.params.userId;
+      const query = { userId: userId };
+      const cursor = wishlistCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    //Delete wishlist items for a specific user
+    app.delete('/wishlist/:userId', async(req, res) =>{
+      const userId = req.params.userId;
+      const query = { _id: new ObjectId(userId) };
+      const result = await wishlistCollection.deleteOne(query);
+      res.send(result);
+
+    })
+
     // Fetch comments for a specific blog
     app.get('/comments/:blogId', async (req, res) => {
       const blogId = req.params.blogId;
@@ -59,9 +85,17 @@ async function run() {
     // Add a new comment to a blog
     app.post('/comments', async (req, res) => {
       const comment = req.body;
-      comment.blogId = new ObjectId(comment.blogId);  // Ensure blogId is an ObjectId
+      comment.blogId = {_id: new ObjectId(comment.blogId)};  // Ensure blogId is an ObjectId
       comment.createdAt = new Date();  // Add timestamp
       const result = await commentsCollection.insertOne(comment);
+      res.send(result);
+    });
+
+    // Add a new blog post
+    app.post('/recentBlog', async (req, res) => {
+      const blogPost = req.body;
+      blogPost.createdAt = new Date();  // Add timestamp
+      const result = await recentBlogCollection.insertOne(blogPost);
       res.send(result);
     });
 

@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173', 'https://blog-travel-website.web.app'],
   credentials: true,
   optionsSuccessStatus: 200,
 }));
@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server (optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const recentBlogCollection = client.db('BlogTravel').collection('recentBlog');
     const commentsCollection = client.db('BlogTravel').collection('comments');
@@ -98,6 +98,24 @@ async function run() {
       const result = await recentBlogCollection.insertOne(blogPost);
       res.send(result);
     });
+
+
+
+   // Fetch all recent blogs with text search
+app.get('/recentBlogSearch', async (req, res) => {
+  const searchText = req.query.search || ''; // Get search text from query parameter
+  const query = {
+    $text: {
+      $search: searchText,
+      $caseSensitive: false, // Optional: Case sensitivity
+      $diacriticSensitive: false // Optional: Diacritic sensitivity
+    }
+  };
+  const cursor = recentBlogCollection.find(query);
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
